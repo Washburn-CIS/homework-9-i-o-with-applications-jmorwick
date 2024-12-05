@@ -1,4 +1,7 @@
 import java.util.Scanner;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.PrintWriter;
 
 public class GradeBook {
     private static Student[] students;
@@ -6,7 +9,23 @@ public class GradeBook {
     public static void main(String[] args) {
         Scanner input = new Scanner(System.in);
 
-        // TODO: initialize students from contents of grades.txt file
+        // initialize students from contents of grades.txt file
+        try {
+            Scanner fin = new Scanner(new File("grades.txt"));
+            int numStudents = Integer.parseInt(fin.nextLine());
+            students = new Student[numStudents];
+            for(int i=0; i<numStudents; i++) {
+                students[i] = new Student();
+                String[] tokens = fin.nextLine().split(",");
+                students[i].setFirstName(tokens[0]);
+                students[i].setLastName(tokens[1]);
+                students[i].setGrade(Double.parseDouble(tokens[2]));
+            }
+            
+        } catch(FileNotFoundException e) {
+            System.out.println("Could not open grades.txt");
+            System.exit(10);
+        }
 
         System.out.println("Welcome to the CM111 Grade Book App!");
 
@@ -33,18 +52,31 @@ public class GradeBook {
                     String lname = input.nextLine();
                     
                     for(Student student: students) {
-                        if(student.getFirstName().equals(fname) &&
-                           student.getLastName().equals(lname)) {
+                        if(student.getLastName().equals(fname) &&
+                           student.getFirstName().equals(lname)) {
                            System.out.println("Enter Grade: ");
                            student.setGrade(Double.parseDouble(input.nextLine()));
                            System.out.println("Grade updated");
-                           break;
+                           continue;
                         }
                     }
                     System.out.println("Student not found");
                     break;
                 case "3":
-                    // Challenge: write code to save the grades to grades.txt
+                    // write code to save the grades to grades.txt
+                    try {
+                        PrintWriter fout = new PrintWriter(new File("grades.txt"));
+                        fout.println(students.length);
+                        for(Student s : students) {
+                            fout.printf("%s,%s,%f%n",
+                                s.getFirstName(),
+                                s.getLastName(),
+                                s.getGrade());
+                        }
+                        fout.close();
+                    } catch(FileNotFoundException e) {
+                        System.out.println("ERROR!!!! could not save grades to grades.txt!");
+                    }
                     System.out.println("Goodbye!");
                     return;
 
